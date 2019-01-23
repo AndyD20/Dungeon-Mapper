@@ -3,6 +3,7 @@ from pygame import draw
 shape = __import__('program_variables').ProgramVariables.shape
 tile_size = __import__('program_variables').ProgramVariables.tile_size
 grey = __import__('program_variables').ProgramVariables.Colours.grey
+white = __import__('program_variables').ProgramVariables.Colours.white
 
 
 def draw_grid(display_surface):

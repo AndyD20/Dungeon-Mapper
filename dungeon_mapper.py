@@ -16,7 +16,7 @@ def main():
 
     ProgramVariables.game_state = GameState.RUNNING
 
-    running_loop()
+    running_loop(display_surface)
 
     pygame.quit()
     sys.exit()
