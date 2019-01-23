@@ -1,6 +1,7 @@
 
 
 class DrawableLine:
-    start_pos = (0, 0)
-    end_pos = (0, 0)
-    isCompletedLine = False
+    def __init__(self, start_pos, end_pos, is_completed_line):
+        self.start_pos = start_pos
+        self.end_pos = end_pos
+        self.is_completed_line = is_completed_line
