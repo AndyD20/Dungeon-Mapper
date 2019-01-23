@@ -1,7 +1,7 @@
 import pygame
-from pygame.locals import *
-from program_variables import ProgramVariables
+
 from game_state import GameState
+from program_variables import ProgramVariables
 from user_input import check_for_user_input
 
 
@@ -15,8 +15,5 @@ def initialise_pygame():
 
 def running_loop(display_surface):
     while ProgramVariables.game_state is GameState.RUNNING:
-        for event in pygame.event.get():
-            if event.type == QUIT:
-                ProgramVariables.game_state = GameState.STOPPING
-            check_for_user_input(event, display_surface)
+        check_for_user_input(pygame.event.get(), display_surface)
         pygame.display.update()
