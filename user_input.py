@@ -43,7 +43,6 @@ def handle_keys(event):
     global grid_lock
     global ctrl_down
     global undo_buffer
-    global drawn_lines
 
     if event.key == K_l and event.type == KEYUP:
         grid_lock = not grid_lock
@@ -76,42 +75,46 @@ def mouse_down(event):
     if not grid_lock or (event.pos[0] % tile_size == 0 and event.pos[1] % tile_size == 0):
         line_begin = event.pos
     else:
-        x = round_number_to_nearest_grid_location(event.pos[0])
-        y = round_number_to_nearest_grid_location(event.pos[1])
-        line_begin = (x, y)
+        line_begin = round_coordinate_to_grid((event.pos[0], event.pos[1]))
 
 
 def old_line_cleanup():
-    m_pos = mouse_position()
-
     for line in drawn_lines:
         if not line.is_completed_line:
             drawn_lines.remove(line)
-
-    if draw_line and not grid_lock:
-        drawn_lines.append(DrawableLine((line_begin[0], line_begin[1]), (m_pos[0], m_pos[1]), False))
-    elif draw_line:
-        x = round_number_to_nearest_grid_location(line_begin[0])
-        y = round_number_to_nearest_grid_location(line_begin[1])
-        x2 = round_number_to_nearest_grid_location(m_pos[0])
-        y2 = round_number_to_nearest_grid_location(m_pos[1])
-        drawn_lines.append(DrawableLine((x, y), (x2, y2), False))
+    if draw_line:
+        draw_a_line(is_completed_line=False)
 
 
 def mouse_up():
     global draw_line
     global line_begin
 
-    m_pos = mouse_position()
-    if not grid_lock:
-        drawn_lines.append(DrawableLine((line_begin[0], line_begin[1]), (m_pos[0], m_pos[1]), True))
-    else:
-        x = round_number_to_nearest_grid_location(m_pos[0])
-        y = round_number_to_nearest_grid_location(m_pos[1])
-        drawn_lines.append(DrawableLine((line_begin[0], line_begin[1]), (x, y), True))
+    draw_a_line(is_completed_line=True)
 
     draw_line = False
     line_begin = (0, 0)
+
+
+def draw_a_line(is_completed_line):
+    m_pos = mouse_position()
+    if grid_lock:
+        draw_grid_locked_line(is_completed_line)
+    else:
+        drawn_lines.append(DrawableLine((line_begin[0], line_begin[1]), (m_pos[0], m_pos[1]), is_completed_line))
+
+
+def draw_grid_locked_line(is_completed_line):
+    m_pos = mouse_position()
+    x1, y1 = round_coordinate_to_grid((line_begin[0], line_begin[1]))
+    x2, y2 = round_coordinate_to_grid((m_pos[0], m_pos[1]))
+    drawn_lines.append(DrawableLine((x1, y1), (x2, y2), is_completed_line))
+
+
+def round_coordinate_to_grid(coordinate):
+    x = round_number_to_nearest_grid_location(coordinate[0])
+    y = round_number_to_nearest_grid_location(coordinate[1])
+    return x, y
 
 
 def round_number_to_nearest_grid_location(num):
