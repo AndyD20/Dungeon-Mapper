@@ -6,6 +6,7 @@ from game_state import GameState
 from program_variables import ProgramVariables
 
 mouse_position = __import__('pygame').mouse.get_pos
+tile_size = __import__('program_variables').ProgramVariables.tile_size
 
 grid_lock = False
 draw_line = False
@@ -23,9 +24,7 @@ def check_for_user_input(events, display_surface):
             ProgramVariables.game_state = GameState.STOPPING
 
         if event.type == KEYUP:
-            if event.key == K_l:
-                grid_lock = not grid_lock
-                print(grid_lock)
+
 
         if event.type == MOUSEBUTTONDOWN:
             mouse_down(event)
@@ -38,6 +37,13 @@ def check_for_user_input(events, display_surface):
         redraw_grid(display_surface)
 
 
+def handle_keys(event):
+    global grid_lock
+
+    if event.key == K_l and not draw_line:
+        grid_lock = not grid_lock
+
+
 def redraw_grid(display_surface):
     draw_grid(display_surface)
     for line in drawn_lines:
@@ -47,9 +53,16 @@ def redraw_grid(display_surface):
 def mouse_down(event):
     global draw_line
     global line_begin
+    global grid_lock
 
     draw_line = True
-    line_begin = event.pos
+
+    if not grid_lock or (event.pos[0] % tile_size == 0 and event.pos[1] % tile_size == 0):
+        line_begin = event.pos
+    else:
+        x = round_number_to_nearest_grid_location(event.pos[0])
+        y = round_number_to_nearest_grid_location(event.pos[1])
+        line_begin = (x, y)
 
 
 def old_line_cleanup():
@@ -59,8 +72,12 @@ def old_line_cleanup():
         if not line.is_completed_line:
             drawn_lines.remove(line)
 
-    if draw_line:
+    if draw_line and not grid_lock:
         drawn_lines.append(DrawableLine((line_begin[0], line_begin[1]), (m_pos[0], m_pos[1]), False))
+    elif draw_line:
+        x = round_number_to_nearest_grid_location(m_pos[0])
+        y = round_number_to_nearest_grid_location(m_pos[1])
+        drawn_lines.append(DrawableLine((line_begin[0], line_begin[1]), (x, y), False))
 
 
 def mouse_up():
@@ -68,7 +85,16 @@ def mouse_up():
     global line_begin
 
     m_pos = mouse_position()
+    if not grid_lock:
+        drawn_lines.append(DrawableLine((line_begin[0], line_begin[1]), (m_pos[0], m_pos[1]), True))
+    else:
+        x = round_number_to_nearest_grid_location(m_pos[0])
+        y = round_number_to_nearest_grid_location(m_pos[1])
+        drawn_lines.append(DrawableLine((line_begin[0], line_begin[1]), (x, y), True))
 
-    drawn_lines.append(DrawableLine((line_begin[0], line_begin[1]), (m_pos[0], m_pos[1]), True))
     draw_line = False
     line_begin = (0, 0)
+
+
+def round_number_to_nearest_grid_location(num):
+    return int(tile_size * round(float(num)/tile_size))
