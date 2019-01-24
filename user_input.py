@@ -24,7 +24,7 @@ def check_for_user_input(events, display_surface):
             ProgramVariables.game_state = GameState.STOPPING
 
         if event.type == KEYUP:
-
+            handle_keys(event)
 
         if event.type == MOUSEBUTTONDOWN:
             mouse_down(event)
