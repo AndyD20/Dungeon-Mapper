@@ -40,7 +40,7 @@ def check_for_user_input(events, display_surface):
 def handle_keys(event):
     global grid_lock
 
-    if event.key == K_l and not draw_line:
+    if event.key == K_l:
         grid_lock = not grid_lock
 
 
@@ -75,9 +75,11 @@ def old_line_cleanup():
     if draw_line and not grid_lock:
         drawn_lines.append(DrawableLine((line_begin[0], line_begin[1]), (m_pos[0], m_pos[1]), False))
     elif draw_line:
-        x = round_number_to_nearest_grid_location(m_pos[0])
-        y = round_number_to_nearest_grid_location(m_pos[1])
-        drawn_lines.append(DrawableLine((line_begin[0], line_begin[1]), (x, y), False))
+        x = round_number_to_nearest_grid_location(line_begin[0])
+        y = round_number_to_nearest_grid_location(line_begin[1])
+        x2 = round_number_to_nearest_grid_location(m_pos[0])
+        y2 = round_number_to_nearest_grid_location(m_pos[1])
+        drawn_lines.append(DrawableLine((x, y), (x2, y2), False))
 
 
 def mouse_up():
