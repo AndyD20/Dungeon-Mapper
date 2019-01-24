@@ -10,6 +10,8 @@ tile_size = __import__('program_variables').ProgramVariables.tile_size
 
 grid_lock = False
 draw_line = False
+ctrl_down = False
+undo_buffer = False
 line_begin = (0, 0)
 drawn_lines = []
 
@@ -23,7 +25,7 @@ def check_for_user_input(events, display_surface):
         if event.type == QUIT:
             ProgramVariables.game_state = GameState.STOPPING
 
-        if event.type == KEYUP:
+        if event.type == KEYUP or event.type == KEYDOWN:
             handle_keys(event)
 
         if event.type == MOUSEBUTTONDOWN:
@@ -39,9 +41,23 @@ def check_for_user_input(events, display_surface):
 
 def handle_keys(event):
     global grid_lock
+    global ctrl_down
+    global undo_buffer
+    global drawn_lines
 
-    if event.key == K_l:
+    if event.key == K_l and event.type == KEYUP:
         grid_lock = not grid_lock
+    elif event.key == K_LCTRL and event.type == KEYDOWN:
+        ctrl_down = True
+    elif event.key == K_LCTRL and event.type == KEYUP:
+        ctrl_down = False
+    elif event.key == K_z and event.type == KEYDOWN and ctrl_down:
+        if not undo_buffer:
+            if len(drawn_lines) is not 0:
+                drawn_lines.pop()
+                undo_buffer = True
+    elif event.key == K_z and event.type == KEYUP and ctrl_down:
+        undo_buffer = False
 
 
 def redraw_grid(display_surface):
