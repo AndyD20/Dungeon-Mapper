@@ -1,6 +1,6 @@
 class ProgramVariables:
     shape = (512, 512)
-    tile_size = 10
+    tile_size = 15
     window_title = 'Dungeon Mapper'
     game_state = None
 
