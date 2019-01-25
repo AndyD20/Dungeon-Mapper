@@ -18,8 +18,8 @@ class DrawableRectangle(DrawableObject):
         width = self.details.end_pos[0] - self.details.start_pos[0]
         height = self.details.end_pos[1] - self.details.start_pos[1]
 
+        #  Todo: find reliable way to position rectangles in the midpoints of grid locations when locked to grid
         rect_top = (self.details.start_pos[1] - (tile_size / 2)) + (floor(def_line_size / 2))
-
         rect = (self.details.start_pos[0] + 1, rect_top, width, height)
 
         draw.rect(
