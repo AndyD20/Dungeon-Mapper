@@ -1,5 +1,8 @@
-from pygame.locals import *
+import os
 
+from datetime import datetime
+from pygame.image import save
+from pygame.locals import *
 from draw_grid import draw_grid
 from drawable_line import DrawableLine
 from drawable_rectangle import DrawableRectangle
@@ -13,7 +16,7 @@ tile_size = __import__('program_variables').ProgramVariables.tile_size
 grid_lock = False
 draw_line = False
 ctrl_down = False
-undo_buffer = False
+key_buffer = False
 mouse_mode = MouseModes.STRAIGHT_LINE
 line_begin = (0, 0)
 drawn_objects = []
@@ -29,7 +32,7 @@ def check_for_user_input(events, display_surface):
             ProgramVariables.game_state = GameState.STOPPING
 
         if event.type == KEYUP or event.type == KEYDOWN:
-            handle_keys(event)
+            handle_keys(event, display_surface)
 
         if event.type == MOUSEBUTTONDOWN:
             mouse_down(event)
@@ -42,29 +45,44 @@ def check_for_user_input(events, display_surface):
         redraw_grid(display_surface)
 
 
-def handle_keys(event):
+def handle_keys(event, display_surface):
     global grid_lock
     global ctrl_down
-    global undo_buffer
+    global key_buffer
     global mouse_mode
+    global drawn_objects
 
-    if event.key == K_l and event.type == KEYUP:
+    if event.key == K_g and event.type == KEYUP:
         grid_lock = not grid_lock
     elif event.key == K_LCTRL and event.type == KEYDOWN:
         ctrl_down = True
     elif event.key == K_LCTRL and event.type == KEYUP:
         ctrl_down = False
     elif event.key == K_z and event.type == KEYDOWN and ctrl_down:
-        if not undo_buffer:
+        if not key_buffer:
             if len(drawn_objects) is not 0:
                 drawn_objects.pop()
-                undo_buffer = True
+                key_buffer = True
     elif event.key == K_z and event.type == KEYUP and ctrl_down:
-        undo_buffer = False
+        key_buffer = False
     elif event.key == K_d and event.type == KEYUP:
         mouse_mode = MouseModes.DOOR
-    elif event.key == K_s and event.type == KEYUP:
+    elif event.key == K_l and event.type == KEYUP:
         mouse_mode = MouseModes.STRAIGHT_LINE
+
+    elif event.key == K_s and event.type == KEYDOWN and ctrl_down:
+        if not key_buffer:
+            cur_time = datetime.now()
+            time_str = "{0}{1}{2}{3}{4}{5}".format(cur_time.year, cur_time.month, cur_time.day,
+                                                   cur_time.hour, cur_time.minute, cur_time.second)
+
+            if not os.path.exists("screenshots/"):
+                os.makedirs("screenshots/")
+
+            save(display_surface, "screenshots/screenshot_{}.jpg".format(time_str))
+            key_buffer = True
+    elif event.key == K_s and event.type == KEYUP and ctrl_down:
+        key_buffer = False
 
 
 def redraw_grid(display_surface):
